@@ -14,6 +14,10 @@
 - `Assets/Scripts/` : C#スクリプト（ワールド生成、カスタムツール、UdonSharpギミックなど）
 - `Assets/Prefabs/` : 再利用するオブジェクト、ビル、自販機などのプレハブ
 - `Assets/Scenes/` : ワールドシーン
+- `Documents/` : プロジェクトの各種ドキュメント置き場
+  - `Documents/specification/` : 世界観や仕様書（例: `world_lore.md`）
+  - `Documents/memo/` : アイデア・検討ログ
+  - `Documents/prompts/` : AI指示用プロンプト集
 
 ## 4. AIエージェントの役割（Multi-Agent Roles）
 あなたがCodexとして動く際は、以下の役割を兼ね備えた「AI Director / Lead Engineer」として振る舞うこと。

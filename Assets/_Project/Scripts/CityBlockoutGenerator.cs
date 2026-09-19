@@ -2,6 +2,10 @@ using UnityEngine;
 
 public class CityBlockoutGenerator : MonoBehaviour
 {
+    [Header("Generated Content Root")]
+    [Tooltip("生成物だけを格納する CityGeometry を指定します。未指定時はこのオブジェクト自身を使用します。")]
+    [SerializeField] private Transform cityGeometryRoot;
+
     [Header("Generation Settings")]
     public GameObject blockPrefab; // プレハブ（未設定ならCubeが自動生成されます）
     public int gridWidth = 7;      // 横の区画数
@@ -18,11 +22,13 @@ public class CityBlockoutGenerator : MonoBehaviour
     [ContextMenu("Generate City Blockout")]
     public void GenerateCity()
     {
-        // 既存の子オブジェクトをすべてクリア
-        int childCount = transform.childCount;
+        Transform generatedRoot = GetGeneratedRoot();
+
+        // CityGeometry 配下の生成物だけをクリアし、SpawnPoints / WorldSystems は保護する
+        int childCount = generatedRoot.childCount;
         for (int i = childCount - 1; i >= 0; i--)
         {
-            DestroyImmediate(transform.GetChild(i).gameObject);
+            DestroyImmediate(generatedRoot.GetChild(i).gameObject);
         }
 
         float totalCellSize = buildingSize + roadWidth;
@@ -51,12 +57,12 @@ public class CityBlockoutGenerator : MonoBehaviour
                 GameObject block;
                 if (blockPrefab != null)
                 {
-                    block = Instantiate(blockPrefab, transform);
+                    block = Instantiate(blockPrefab, generatedRoot);
                 }
                 else
                 {
                     block = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    block.transform.SetParent(transform);
+                    block.transform.SetParent(generatedRoot);
                 }
 
                 // ランダムな高層ビルを生成
@@ -67,17 +73,22 @@ public class CityBlockoutGenerator : MonoBehaviour
         }
 
         // 中央駅の代わりの広場マーカー（床）を生成
-        CreateCentralPlaza(centerIndexX, centerIndexZ, totalCellSize);
+        CreateCentralPlaza(generatedRoot, centerIndexX, centerIndexZ, totalCellSize);
 
         Debug.Log("中央駅と道路スペースを確保した街の生成が完了しました！");
     }
 
-    void CreateCentralPlaza(int centerX, int centerZ, float totalCellSize)
+    private Transform GetGeneratedRoot()
+    {
+        return cityGeometryRoot != null ? cityGeometryRoot : transform;
+    }
+
+    void CreateCentralPlaza(Transform generatedRoot, int centerX, int centerZ, float totalCellSize)
     {
         // 広場の床を作成
         GameObject plaza = GameObject.CreatePrimitive(PrimitiveType.Cube);
         plaza.name = "CentralStation_Plaza";
-        plaza.transform.SetParent(transform);
+        plaza.transform.SetParent(generatedRoot);
 
         float plazaSize = totalCellSize * 3.0f - roadWidth;
         float centerXPos = centerX * totalCellSize;
